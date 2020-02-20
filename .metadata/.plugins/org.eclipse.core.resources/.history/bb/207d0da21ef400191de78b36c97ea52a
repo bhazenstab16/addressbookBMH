@@ -1,0 +1,195 @@
+package com.example.addressbook;
+
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.text.TextUtils;
+import android.text.format.Time;
+import android.database.Cursor;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
+import android.os.Build;
+
+public class MainActivity extends ActionBarActivity {
+
+	Time today = new Time(Time.getCurrentTimezone());
+	DBAdapter myDb;
+	EditText etName;
+	EditText etStreetAddress;
+	EditText etCity;
+	EditText etState;
+	EditText etZip;
+	
+	
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        etName = (EditText)findViewById(R.id.editTextName);
+        etStreetAddress = (EditText)findViewById(R.id.editTextStreetAddress);
+        etCity = (EditText)findViewById(R.id.editTextCity);
+        etState = (EditText)findViewById(R.id.editTextState);
+        etZip = (EditText)findViewById(R.id.editTextZip);
+        openDb();
+        populateListView();
+        listViewItemClick();
+        listViewItemLongClick();
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new PlaceholderFragment())
+                    .commit();
+        }
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * A placeholder fragment containing a simple view.
+     */
+    public static class PlaceholderFragment extends Fragment {
+
+        public PlaceholderFragment() {
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            return rootView;
+        }
+    }
+
+    private void openDb()
+    {
+    	myDb = new DBAdapter(this);
+    	myDb.open();
+    }
+    
+    public void onClickAddAddress(View v)
+    {
+    	today.setToNow(); 
+    	
+    	if(!TextUtils.isEmpty(etName.getText().toString()))
+    	{
+    		myDb.insertRow(etName.getText().toString(), etStreetAddress.getText().toString(), etCity.getText().toString(), etState.getText().toString(), etZip.getText().toString());
+    	}
+    	populateListView();
+    }
+    
+    
+    private void populateListView()
+    {
+    	Cursor cursor = myDb.getAllRows();
+    	String[] fromFieldNames = new String[] {DBAdapter.KEY_ROWID, DBAdapter.KEY_NAME, DBAdapter.KEY_STREET_ADDRESS, DBAdapter.KEY_CITY, DBAdapter.KEY_STATE, DBAdapter.KEY_ZIP};
+    	int[] toViewIDs = new int[] {R.id.textViewName, R.id.textViewStreetAddress, R.id.textViewCity, R.id.textViewState, R.id.textViewZip};
+    	SimpleCursorAdapter myCursorAdapter;
+    	myCursorAdapter = new SimpleCursorAdapter(getBaseContext(), R.layout.item_layout, cursor, fromFieldNames, toViewIDs, 0);
+    	ListView myList = (ListView)findViewById(R.id.listViewAddresses);
+    	myList.setAdapter(myCursorAdapter);
+    }
+    
+    private void updateAddress(long id)
+    {
+    	Cursor cursor = myDb.getRow(id);
+    	if( cursor.moveToFirst() ){
+    		String name = etName.getText().toString();
+    		String street_address = etStreetAddress.getText().toString();
+    		String city = etCity.getText().toString();
+    		String state = etState.getText().toString();
+    		String zip = etZip.getText().toString();
+    		today.setToNow();
+    		myDb.updateRow(id, name, street_address, city, state, zip);
+    	}
+    	cursor.close();
+    }
+    private void listViewItemClick()
+    {
+    	ListView myList = (ListView)findViewById(R.id.listViewAddresses);
+    	myList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				updateAddress(id);
+				populateListView();
+				displayToast(id);
+			}
+		});
+    }
+    
+    public void listViewItemLongClick()
+    {
+    	ListView myList = (ListView)findViewById(R.id.listViewAddresses);
+    	myList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				myDb.deleteRow(id);
+				populateListView();
+				return false;
+			}
+		});
+    }
+    
+    public void displayToast(long id) //**** maybe make one for update one for delete
+    {
+    	Cursor cursor = myDb.getRow(id);
+    	if( cursor.moveToFirst() )
+    	{
+    		long idDB = cursor.getLong(DBAdapter.COL_ROWID);
+    		String name = cursor.getString(DBAdapter.COL_NAME);
+    		String street_address = cursor.getString(DBAdapter.COL_STREET_ADDRESS);
+    		String city = cursor.getString(DBAdapter.COL_CITY);
+    		String state = cursor.getString(DBAdapter.COL_STATE);
+    		String zip = cursor.getString(DBAdapter.COL_ZIP);
+    		
+    		String message = "ID: "+idDB+"\n"+"Name: "+name;
+    		Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+    	}
+    	cursor.close();
+    }
+    
+    protected void onDestroy()
+    {
+    	super.onDestroy();
+    	closeDB();
+    }
+    
+    private void closeDB()
+    {
+    	myDb.close();
+    }
+}

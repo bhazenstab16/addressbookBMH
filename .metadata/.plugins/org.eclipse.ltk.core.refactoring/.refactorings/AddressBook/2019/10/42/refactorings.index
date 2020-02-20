@@ -1,0 +1,8 @@
+1571325938712	Change Layout
+1571326219293	Rename field 'editText1'
+1571326319169	Extracts string 'null' into R.string.stringHintName
+1571326339593	Extracts string 'null' into R.string.stringHintStreetAddress
+1571326351641	Extracts string 'null' into R.string.stringHintCity
+1571326371330	Extracts string 'null' into R.string.stringHintState
+1571326387773	Extracts string 'null' into R.string.stringHintZip
+1571326620118	Extracts string 'null' into R.string.stringAddRecord

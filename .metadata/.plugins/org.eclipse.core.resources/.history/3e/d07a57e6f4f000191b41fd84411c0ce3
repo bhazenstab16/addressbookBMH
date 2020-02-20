@@ -1,0 +1,72 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.addressbook.MainActivity"
+    tools:ignore="MergeRootFrame" >
+
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:ems="10"
+        android:hint="@string/stringHintName"
+        android:inputType="textPersonName" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editTextCity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/editTextStreetAddress"
+        android:layout_padding="10dp"
+        android:ems="10"
+        android:hint="@string/stringHintCity" />
+
+    <EditText
+        android:id="@+id/editTextState"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editTextCity"
+        android:layout_alignBottom="@+id/editTextCity"
+        android:layout_toRightOf="@+id/editTextCity"
+        android:ems="10"
+        android:hint="@string/stringHintState" />
+
+    <EditText
+        android:id="@+id/editTextZip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/editTextState"
+        android:layout_alignBottom="@+id/editTextState"
+        android:layout_toRightOf="@+id/editTextState"
+        android:ems="10"
+        android:hint="@string/stringHintZip"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/editTextStreetAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/editTextZip"
+        android:ems="10"
+        android:hint="@string/stringHintStreetAddress"
+        android:inputType="textPostalAddress" />
+
+    <Button
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/editTextCity"
+        android:text="@string/stringAddRecord" />
+
+</RelativeLayout>
